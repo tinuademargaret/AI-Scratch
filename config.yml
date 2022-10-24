@@ -5,3 +5,4 @@ loss_function: "BCE" # MSE, BCE, CE
 gradient_type: "SGD"
 epochs: 80
 data_path: "./data/data.csv"
+batch_size: 100

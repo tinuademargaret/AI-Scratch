@@ -2,10 +2,12 @@ import numpy as np
 import pandas as pd
 import yaml
 
-from neural_network.network import NeuralNetwork
 from sklearn.metrics import accuracy_score
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder, StandardScaler
+
+from neural_network.gradient_descent import batch_gradient_descent, stochastic_gradient_descent
+from neural_network.network import NeuralNetwork
 
 
 def get_config_data():
@@ -47,9 +49,9 @@ def pre_process_data(data, train_split=0.70, test_split=0.30):
     # drop unamed column
     data.drop(["Unnamed: 32", "id"], axis=1, inplace=True)
 
-    X = np.array(data.drop('diagnosis', axis=1))
+    X = data.drop('diagnosis', axis=1)
 
-    y = np.array(data.diagnosis)
+    y = data.diagnosis
     le = LabelEncoder()
     y = le.fit_transform(y)
 
@@ -69,32 +71,6 @@ def pre_process_data(data, train_split=0.70, test_split=0.30):
     return X_train, X_test, y_train, y_test
 
 
-def train_network(epochs,
-                  model,
-                  network_input,
-                  output
-                  ):
-    model.create_network()
-
-    print(f"Model architecture...{model.architecture}")
-
-    losses = {'train': [], 'validation': []}
-    network_output = 0
-    for epoch in range(epochs):
-        network_output, train_loss = model.train(network_input, output)
-
-        print("\rProgress: {:2.1f}".format(100 * epoch / float(epochs))
-              + "% ... Training loss: " + str(train_loss)
-
-              )
-
-        losses['train'].append(train_loss)
-
-    accuracy = accuracy_score((network_output > 0.5).astype(int), output)
-
-    return network_output, accuracy
-
-
 def predict(model, test_input, test_output):
     predictions = model.feed_forward(test_input)
     prediction_accuracy = accuracy_score((predictions > 0.5).astype(int), test_output)
@@ -108,6 +84,7 @@ def main():
     loss_function = config["loss_function"]
     gradient_type = config["gradient_type"]
     learning_rate = config["learning_rate"]
+    batch_size = config["batch_size"]
     epochs = config["epochs"]
     data_path = config["data_path"]
     data = load_dataset(data_path)
@@ -115,12 +92,23 @@ def main():
     layers = []
     for size, activation_function in zip(sizes, activation_functions):
         layers.append((size, activation_function))
-    model = NeuralNetwork(X_train.shape[1],
-                          layers,
-                          learning_rate,
-                          loss_function
-                          )
-    model_output, model_accuracy = train_network(epochs, model, X_train, y_train)
+
+    if gradient_type == "SGD":
+        model = NeuralNetwork(X_train.shape[1],
+                              layers,
+                              learning_rate,
+                              loss_function
+                              ).create_network()
+        print(f"Model architecture...{model.architecture}")
+        model_output, model_accuracy = stochastic_gradient_descent(epochs, model, X_train, y_train, batch_size)
+    else:
+        model = NeuralNetwork(X_train.shape[1],
+                              layers,
+                              learning_rate,
+                              loss_function
+                              ).create_network()
+        print(f"Model architecture...{model.architecture}")
+        model_output, model_accuracy = batch_gradient_descent(epochs, model, X_train, y_train)
     print(f"Model accuracy score...:{model_accuracy}")
     print("Making prediction...")
     model_prediction_accuracy = predict(model, X_test, y_test)
