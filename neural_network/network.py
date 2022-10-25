@@ -214,3 +214,19 @@ class NeuralNetwork:
         self.update_parameters(delta_weight_matrix, delta_bias_matrix, n_records)
 
         return network_output, loss_score
+
+    def validate(self, validation_input, validation_output):
+
+        network_output = self.feed_forward(validation_input)
+
+        if self.loss_function == "MSE":
+            loss_score = mean_squared_error(network_output, validation_output)
+
+        elif self.loss_function == "BCE":
+            loss_score = binary_cross_entropy(network_output, validation_output)
+
+        elif self.loss_function == "CE":
+            loss_score = cross_entropy(network_output, validation_output)
+
+        return loss_score
+

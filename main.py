@@ -61,14 +61,18 @@ def pre_process_data(data, train_split=0.70, test_split=0.30):
                                                         train_size=train_split,
                                                         random_state=30)
 
+    X_train, X_val, y_train, y_val = train_test_split(X_train, y_train, test_size=0.40, random_state=30)
+
     sc = StandardScaler()
     X_train = sc.fit_transform(X_train)
-    X_test = sc.transform(X_test)
+    X_test = sc.fit_transform(X_test)
+    X_val = sc.fit_transform(X_val)
 
     y_train = y_train.reshape(len(y_train), 1)
     y_test = y_test.reshape(len(y_test), 1)
+    y_val = y_val.reshape(len(y_val), 1)
 
-    return X_train, X_test, y_train, y_test
+    return X_train, X_test, X_val, y_train, y_test, y_val
 
 
 def predict(model, test_input, test_output):
@@ -88,27 +92,36 @@ def main():
     epochs = config["epochs"]
     data_path = config["data_path"]
     data = load_dataset(data_path)
-    X_train, X_test, y_train, y_test = pre_process_data(data)
+    X_train, X_test, X_val, y_train, y_test, y_val = pre_process_data(data)
     layers = []
     for size, activation_function in zip(sizes, activation_functions):
         layers.append((size, activation_function))
 
+    model = NeuralNetwork(X_train.shape[1],
+                          layers,
+                          learning_rate,
+                          loss_function
+                          ).create_network()
+    print(f"Model architecture...{model.architecture}")
+
     if gradient_type == "SGD":
-        model = NeuralNetwork(X_train.shape[1],
-                              layers,
-                              learning_rate,
-                              loss_function
-                              ).create_network()
-        print(f"Model architecture...{model.architecture}")
-        model_output, model_accuracy = stochastic_gradient_descent(epochs, model, X_train, y_train, batch_size)
+        result = stochastic_gradient_descent(epochs,
+                                             model,
+                                             X_train,
+                                             y_train,
+                                             X_val,
+                                             y_val,
+                                             batch_size)
+        model_accuracy = result["accuracy"]
     else:
-        model = NeuralNetwork(X_train.shape[1],
-                              layers,
-                              learning_rate,
-                              loss_function
-                              ).create_network()
-        print(f"Model architecture...{model.architecture}")
-        model_output, model_accuracy = batch_gradient_descent(epochs, model, X_train, y_train)
+        result = batch_gradient_descent(epochs,
+                                        model,
+                                        X_train,
+                                        y_train,
+                                        X_val,
+                                        y_val
+                                        )
+        model_accuracy = result["accuracy"]
     print(f"Model accuracy score...:{model_accuracy}")
     print("Making prediction...")
     model_prediction_accuracy = predict(model, X_test, y_test)
