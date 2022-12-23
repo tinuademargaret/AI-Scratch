@@ -2,7 +2,4 @@
 .idea
 ./__pycache__/
 .ipynb_checkpoints/
-neural_network/__pycache__/
-neural_network/__pycache__/network.cpython-37.pyc
 __pycache__/
-

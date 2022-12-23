@@ -56,9 +56,11 @@ class NeuralNetwork:
 
             network_layer.level = idx
 
-            network_layer.weights = np.random.uniform(-1, 1,
-                                                      (network_input, nodes))
-            network_layer.bias = np.zeros((1, nodes))
+            network_layer.weights = np.random.uniform(-1, 1, (network_input, nodes))
+
+            # np.sqrt(2/network_input)*np.random.randn(network_input, nodes)
+
+            network_layer.bias = np.random.normal(0, 1, (1, nodes))
             self.network.append(network_layer)
 
             self.architecture.append({
@@ -173,7 +175,6 @@ class NeuralNetwork:
         n_records: number of records
         """
         for i, layer in enumerate(self.network):
-
             layer.update_parameters(self.learning_rate,
                                     delta_weight_matrix[i],
                                     delta_bias_matrix[i],
@@ -229,4 +230,3 @@ class NeuralNetwork:
             loss_score = cross_entropy(network_output, validation_output)
 
         return loss_score
-
