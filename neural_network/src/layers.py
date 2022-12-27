@@ -13,6 +13,13 @@ class Layer:
 
     def forward_pass(self, layer_input):
         """
+        Calculates the output of a layer
+
+        :param layer_input: input to the layer
+
+        :return: output of the layer
+        :rtype: nD array
+        
         """
         z = np.dot(layer_input, self.weights) + self.bias
 
@@ -25,11 +32,18 @@ class Layer:
 
     def activation_function(self, z):
         """
+        Activation function of a layer
+
+        :param z: weighted sum output of a layer
+
+        :return: output
+        :rtype: nD array
         """
         raise NotImplementedError
 
     def activation_derivative(self):
         """
+        Derivative of the layer activation function
         """
         raise NotImplementedError
 
@@ -41,11 +55,12 @@ class Layer:
         """
         Update weights and bias on gradient descent step
 
-        delta_weight_matrix: change in weights in each hidden layer
-        delta_bias_matrix: change in bias in each hidden layer
-        n_records: number of records
+        :param learning_rate: determines how much update
+                              is made to the weights
+        :param delta_weight: change in weight of a layer
+        :param delta_bias: change in bias of a layer
+        :param n_records: number of records
         """
-
         self.weights += learning_rate * delta_weight / n_records
         self.bias += learning_rate * delta_bias / n_records
 
@@ -53,44 +68,33 @@ class Layer:
 class SigmoidLayer(Layer):
 
     def activation_function(self, z):
-        """
-        """
+
         return 1 / (1 + np.exp(-z))
 
     def activation_derivative(self):
-        """
-        """
+
         return self.layer_output * (1 - self.layer_output)
 
 
 class ReLULayer(Layer):
 
     def activation_function(self, z):
-        """
-        """
+
         return np.maximum(0, z)
 
     def activation_derivative(self):
-        """
-        """
+
         return np.heaviside(self.layer_output, 0)
 
 
 class TanhLayer(Layer):
 
     def activation_function(self, z):
-        """
 
-        :param z:
-        :return:
-        """
         return np.tanh(z)
 
     def activation_derivative(self):
-        """
 
-        :return:
-        """
         return 1 - np.tanh(self.layer_output) ** 2
 
 
@@ -112,20 +116,11 @@ class LeakyReLULayer(Layer):
         return x
 
     def activation_function(self, z):
-        """
-
-        :param z:
-        :return:
-        """
 
         np_helper = np.vectorize(LeakyReLULayer.helper)
         return np_helper(z)
 
     def activation_derivative(self):
-        """
-
-        :return:
-        """
 
         np_helper = np.vectorize(LeakyReLULayer.helper)
 

@@ -20,9 +20,7 @@ def binary_cross_entropy_prime(y_pred, y):
     return - (y / y_pred + (1 - y) * 1 / (1 - y_pred))
 
 
-# requires changes as this might not be the correct formula - may be find another one - task on Rucha
 def cross_entropy(y_pred, y):
-    # divide by y.shape[0]?
     return -np.sum(y * np.log(y_pred))
 
 

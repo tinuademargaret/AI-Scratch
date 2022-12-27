@@ -1,4 +1,3 @@
-import numpy as np
 import pandas as pd
 import yaml
 
@@ -6,21 +5,15 @@ from sklearn.metrics import accuracy_score
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder, StandardScaler
 
-from neural_network.gradient_descent import batch_gradient_descent, stochastic_gradient_descent
-from neural_network.network import NeuralNetwork
+from neural_network.src.gradient_descent import batch_gradient_descent, stochastic_gradient_descent
+from neural_network.src.network import NeuralNetwork
 
 
 def get_config_data():
-    """ Read the configurations for Neural Network
-    Returns:
-        sizes: Number of layers and number of neurons in the network
-        learning_rate
-        activation_function: list of activation functions from layer to another - Sigmoid,tanh,ReLU,LeakyReLU
-        loss_function: MSE(Mean square error), BCE(Binary Cross Entropy), CE(Cross Entropy)
-        gradient_type: FGD(full gradient descent) MB(mini-batch gradient descent)
-        epochs: number of epochs
     """
-    config_path = "./config.yml"
+    Read the configurations for Neural Network
+    """
+    config_path = "config.yml"
 
     with open(config_path) as f:
         configurations = yaml.safe_load(f)
@@ -29,22 +22,18 @@ def get_config_data():
 
 
 def load_dataset(path):
-    """ Function to read data from source
-    Args:
-        path: path to data source
-    Returns:
-        Dataframe of the breast cancer data
     """
-
+    Reads data from source
+    """
     data = pd.read_csv(path)
-
     return data
 
 
 def pre_process_data(data, train_split=0.70, test_split=0.30):
-    """ Data Preprocessing for modelling
-        - Data Normalising
-        - Data Splitting into train and test
+    """
+    Data Preprocessing for modelling
+    - Data Normalising
+    - Data Splitting into train and test
     """
     # drop unamed column
     data.drop(["Unnamed: 32", "id"], axis=1, inplace=True)
