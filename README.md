@@ -1,2 +1,2 @@
-# ml-scratch
-Machine learning Algorithms implemented from scratch
+# AI-scratch
+This repository implements some popular AI algorithms from scratch.
